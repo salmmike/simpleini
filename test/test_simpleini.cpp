@@ -87,6 +87,15 @@ TEST(NAME, file_not_found)
     ASSERT_THROW(simpleini::SimpleINI("/path/to/nowhere.ini"), simpleini::INIException);
 }
 
+TEST(NAME, get_as_any)
+{
+    simpleini::SimpleINI test(TESTCONFIG);
+    ASSERT_EQ(test["abc"].get_as<int>("val2"), 3);
+    ASSERT_EQ(test["abc"].get_as<float>("val2"), 3.0f);
+    ASSERT_EQ(test["abc"].get_as<std::string>("val2"), "3");
+    ASSERT_THROW(test["abc"].get_as<int>("val1"), simpleini::INIException);
+}
+
 int main(int argc, char** argv)
 {
     create_test_ini();

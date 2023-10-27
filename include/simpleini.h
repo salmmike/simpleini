@@ -27,6 +27,7 @@ SOFTWARE.
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -110,7 +111,13 @@ class INISection
     /// @param key the key for the value
     /// @return string value of key
     /// @throws std::out_of_range if key doesn't exist
-    std::string operator[](const std::string& key) const
+    std::string operator[](const std::string& key) const { return get(key); };
+
+    /// @brief Return value of key @key
+    /// @param key the key for the value
+    /// @return string value of key
+    /// @throws std::out_of_range if key doesn't exist
+    std::string get(const std::string& key) const
     {
         if (!m_contents.contains(key)) {
             throw std::out_of_range("No key '" + key + "' in section '" +
@@ -118,6 +125,22 @@ class INISection
         }
         return m_contents.at(key);
     };
+
+    /// @brief Get as type T
+    /// @throws INIException if conversion to type T fails.
+    /// @throws std::out_of_range if key doesn't exist.
+    template<typename T>
+    T get_as(const std::string& key)
+    {
+        auto val = get(key);
+        std::stringstream ss(val);
+        T retval;
+        ss >> retval;
+        if (ss.fail()) {
+            throw INIException("Conversion failed from value '" + val + "'");
+        }
+        return retval;
+    }
 
     /// @brief Get the stored values as std::map
     /// @return the key value map for this ini configuration section
