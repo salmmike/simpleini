@@ -13,5 +13,8 @@ simpleini::SimpleINI myconfig(myfile); // May throw INIException if config file 
 std::string value = myconfig["my section name"]["my value"] // May throw std::out_of_range if a key isn't found
 ```
 
+This library can be added to your project by adding it as a submodule and adding `add_subdirectory(simple_ini)` to your CMake file.
+After that you should be able to include it with `target_link_libraries`.
+
 ## Contributing
 The header is formatted using `clang-format -i -style="{BasedOnStyle: Mozilla, IndentWidth: 4}`
