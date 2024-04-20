@@ -27,6 +27,7 @@ SOFTWARE.
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <numeric>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -146,6 +147,16 @@ class INISection
     /// @return the key value map for this ini configuration section
     std::map<std::string, std::string> get_map() { return m_contents; };
 
+    std::string as_string() const
+    {
+        std::string config_section;
+        config_section += "[" + m_name + "]\n";
+        for (const auto& content : m_contents) {
+            config_section += content.first + " = " + content.second + "\n";
+        }
+        return config_section;
+    }
+
   private:
     std::string m_name;
     std::map<std::string, std::string> m_contents;
@@ -171,11 +182,13 @@ class SimpleINI
 
     /// @brief Read a configuration file.
     /// @param path Path to the configuration file.
-    void set_config_file(std::filesystem::path path)
+    void set_config_file(std::filesystem::path path, bool read_conf = true)
     {
         m_path = path;
-        read_content();
-        parse_sections();
+        if (read_conf) {
+            read_content();
+            parse_sections();
+        }
     }
 
     /// @brief Get the configuration file path.
@@ -197,6 +210,26 @@ class SimpleINI
     /// @brief Get the section name - INISection map
     /// @return the stored std::map
     std::map<std::string, INISection> get_map() const { return m_sections; };
+
+    /// @brief Write all configuration data to m_path.
+    void write() const
+    {
+        std::string config;
+        for (const auto& section : m_sections) {
+            config += section.second.as_string();
+        }
+        std::ofstream config_of(m_path);
+        config_of << config;
+        config_of.close();
+    }
+
+    /// @brief Add INI section
+    /// @param name section header
+    /// @param section INISection
+    void add_section(const std::string& name, const INISection& section)
+    {
+        m_sections[name] = section;
+    }
 
   private:
     std::filesystem::path m_path;
